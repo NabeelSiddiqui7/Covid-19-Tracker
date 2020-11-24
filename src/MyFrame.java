@@ -1,8 +1,10 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -21,17 +23,24 @@ public class MyFrame extends JFrame implements ActionListener {
 	JTextField textField2;
 	JTextArea textArea;
 	JTextArea textArea2;
+	ArrayList<String> countries = new ArrayList<String>();
 
 	MyFrame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(640, 500);
+		this.setSize(750, 500);
 		this.setLayout(new BorderLayout());
+		this.setResizable(false);
+		this.setTitle("Covid-19 Tracker");
 
 		JPanel panel1 = new JPanel();
 		JPanel panel2 = new JPanel();
 		JPanel panel3 = new JPanel();
 		JPanel panel4 = new JPanel();
 		JPanel panel5 = new JPanel();
+
+		FlowLayout flow = new FlowLayout();
+		flow.setHgap(50);
+		panel3.setLayout(flow);
 
 		panel1.setBackground(Color.lightGray);
 		panel3.setBackground(Color.lightGray);
@@ -43,8 +52,13 @@ public class MyFrame extends JFrame implements ActionListener {
 		panel4.setPreferredSize(new Dimension(100, 100));
 		panel5.setPreferredSize(new Dimension(100, 100));
 
-		JLabel label = new JLabel(new ImageIcon("C:\\Users\\nabee\\eclipse-workspace\\Covid-19 Tracker\\src\\map.jpg"));
+		JLabel label = new JLabel(new ImageIcon("Resources/map.jpg"));
 		label.setLayout(new BorderLayout());
+		JLabel addCountry = new JLabel("Add a country");
+		JLabel removeCountry = new JLabel("Remove a country");
+		JLabel selectedCountries = new JLabel("Selected Countries");
+		JLabel output = new JLabel("Output");
+		JLabel selectAnalysis = new JLabel("Choose analysis type");
 
 		textField = new JTextField();
 		textField.setPreferredSize(new Dimension(150, 20));
@@ -62,35 +76,57 @@ public class MyFrame extends JFrame implements ActionListener {
 		JComboBox comboBox = new JComboBox(analysisTypes);
 
 		textArea = new JTextArea(6, 15);
+		textArea.setEditable(false);
 		textArea2 = new JTextArea(6, 15);
+		textArea2.setEditable(false);
 
 		this.add(panel1, BorderLayout.NORTH);
 		this.add(panel3, BorderLayout.EAST);
 		this.add(panel4, BorderLayout.SOUTH);
 		this.add(label, BorderLayout.CENTER);
+		panel1.add(addCountry);
 		panel1.add(textField);
 		panel1.add(button);
+		panel1.add(removeCountry);
 		panel1.add(textField2);
 		panel1.add(button2);
+		panel3.add(selectedCountries);
 		panel3.add(textArea);
 		panel3.add(button3);
+		panel3.add(output);
 		panel3.add(textArea2);
+		panel4.add(selectAnalysis);
 		panel4.add(comboBox);
 
 		this.setVisible(true);
+
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == button) {
+			textArea.setText("");
 			System.out.println("Added " + textField.getText());
-			textArea.append(textField.getText() + "\n");
+			countries.add(textField.getText());
+			for (int i = 0; i < countries.size(); i++) {
+				textArea.append(countries.get(i) + "\n");
+			}
+			for (int i = 0; i < countries.size(); i++) {
+				System.out.println(countries.get(i));
+			}
 			textField.setText("");
 		}
 
 		if (e.getSource() == button2) {
+			textArea.setText("");
 			System.out.println("Removed " + textField2.getText());
-			textArea.setText(textArea.getText().replace(textField2.getText(), ""));
+			countries.remove(textField2.getText());
+			for (int i = 0; i < countries.size(); i++) {
+				textArea.append(countries.get(i) + "\n");
+			}
+			for (int i = 0; i < countries.size(); i++) {
+				System.out.println(countries.get(i));
+			}
 			textField2.setText("");
 		}
 
