@@ -16,14 +16,16 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class MyFrame extends JFrame implements ActionListener {
-	JButton button;
-	JButton button2;
-	JButton button3;
-	JTextField textField;
-	JTextField textField2;
-	JTextArea textArea;
-	JTextArea textArea2;
+	JButton addButton;
+	JButton removeButton;
+	JButton calculateButton;
+	JComboBox analysisBox;
+	JTextField addCountryText;
+	JTextField removeCountryText;
+	JTextArea countryList;
+	JTextArea outputArea;
 	ArrayList<String> countries = new ArrayList<String>();
+	ArrayList<Double> results = new ArrayList<Double>();
 
 	MyFrame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,49 +56,49 @@ public class MyFrame extends JFrame implements ActionListener {
 
 		JLabel label = new JLabel(new ImageIcon("Resources/map.jpg"));
 		label.setLayout(new BorderLayout());
-		JLabel addCountry = new JLabel("Add a country");
-		JLabel removeCountry = new JLabel("Remove a country");
+		JLabel addCountry = new JLabel("Add a Country");
+		JLabel removeCountry = new JLabel("Remove a Country");
 		JLabel selectedCountries = new JLabel("Selected Countries");
 		JLabel output = new JLabel("Output");
-		JLabel selectAnalysis = new JLabel("Choose analysis type");
+		JLabel selectAnalysis = new JLabel("Choose Analysis Type");
 
-		textField = new JTextField();
-		textField.setPreferredSize(new Dimension(150, 20));
-		textField2 = new JTextField();
-		textField2.setPreferredSize(new Dimension(150, 20));
+		addCountryText = new JTextField();
+		addCountryText.setPreferredSize(new Dimension(150, 20));
+		removeCountryText = new JTextField();
+		removeCountryText.setPreferredSize(new Dimension(150, 20));
 
-		button = new JButton("Submit");
-		button.addActionListener(this);
-		button2 = new JButton("Remove");
-		button2.addActionListener(this);
-		button3 = new JButton("Calculate");
-		button3.addActionListener(this);
+		addButton = new JButton("Add");
+		addButton.addActionListener(this);
+		removeButton = new JButton("Remove");
+		removeButton.addActionListener(this);
+		calculateButton = new JButton("Calculate");
+		calculateButton.addActionListener(this);
 
-		String[] analysisTypes = { "Analysis 1", "Analysis 2", "Analysis 3" };
-		JComboBox comboBox = new JComboBox(analysisTypes);
+		String[] analysisTypes = { "Total Confirmed Cases per Country", "Analysis 2", "Total Deaths per Country", "Analysis 4" };
+		analysisBox = new JComboBox(analysisTypes);
 
-		textArea = new JTextArea(6, 15);
-		textArea.setEditable(false);
-		textArea2 = new JTextArea(6, 15);
-		textArea2.setEditable(false);
+		countryList = new JTextArea(6, 15);
+		countryList.setEditable(false);
+		outputArea = new JTextArea(6, 15);
+		outputArea.setEditable(false);
 
 		this.add(panel1, BorderLayout.NORTH);
 		this.add(panel3, BorderLayout.EAST);
 		this.add(panel4, BorderLayout.SOUTH);
 		this.add(label, BorderLayout.CENTER);
 		panel1.add(addCountry);
-		panel1.add(textField);
-		panel1.add(button);
+		panel1.add(addCountryText);
+		panel1.add(addButton);
 		panel1.add(removeCountry);
-		panel1.add(textField2);
-		panel1.add(button2);
+		panel1.add(removeCountryText);
+		panel1.add(removeButton);
 		panel3.add(selectedCountries);
-		panel3.add(textArea);
-		panel3.add(button3);
+		panel3.add(countryList);
+		panel3.add(calculateButton);
 		panel3.add(output);
-		panel3.add(textArea2);
+		panel3.add(outputArea);
 		panel4.add(selectAnalysis);
-		panel4.add(comboBox);
+		panel4.add(analysisBox);
 
 		this.setVisible(true);
 
@@ -104,30 +106,57 @@ public class MyFrame extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == button) {
-			textArea.setText("");
-			System.out.println("Added " + textField.getText());
-			countries.add(textField.getText());
+		if (e.getSource() == addButton) {
+			countryList.setText("");
+			System.out.println("Added " + addCountryText.getText());
+			countries.add(addCountryText.getText());
 			for (int i = 0; i < countries.size(); i++) {
-				textArea.append(countries.get(i) + "\n");
+				countryList.append(countries.get(i) + "\n");
 			}
 			for (int i = 0; i < countries.size(); i++) {
 				System.out.println(countries.get(i));
 			}
-			textField.setText("");
+			addCountryText.setText("");
 		}
 
-		if (e.getSource() == button2) {
-			textArea.setText("");
-			System.out.println("Removed " + textField2.getText());
-			countries.remove(textField2.getText());
+		if (e.getSource() == removeButton) {
+			countryList.setText("");
+			System.out.println("Removed " + removeCountryText.getText());
+			countries.remove(removeCountryText.getText());
 			for (int i = 0; i < countries.size(); i++) {
-				textArea.append(countries.get(i) + "\n");
+				countryList.append(countries.get(i) + "\n");
 			}
 			for (int i = 0; i < countries.size(); i++) {
 				System.out.println(countries.get(i));
 			}
-			textField2.setText("");
+			removeCountryText.setText("");
+		}
+
+		if (e.getSource() == calculateButton){
+			if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Country"){
+				System.out.println("Calculating confirmed cases for list of countries.");
+				Analysis selectedAnalysis = new Analysis("Total Confirmed Cases per Country", countries);
+				results = selectedAnalysis.getAnalysisData();
+				outputArea.setText("");
+				for (int i = 0; i < countries.size(); i++) {
+					outputArea.append(countries.get(i) + ":" + results.get(i) + "\n");
+				}
+			}
+			else if (analysisBox.getSelectedItem() == "Analysis 2"){
+				System.out.println("This is the second analysis");
+			}
+			else if (analysisBox.getSelectedItem() == "Total Deaths per Country"){
+				System.out.println("Calculating total deaths for list of countries.");
+				Analysis selectedAnalysis = new Analysis("Total Deaths per Country", countries);
+				results = selectedAnalysis.getAnalysisData();
+				outputArea.setText("");
+				for (int i = 0; i < countries.size(); i++) {
+					outputArea.append(countries.get(i) + ":" + results.get(i) + "\n");
+				}
+			}
+			else if (analysisBox.getSelectedItem() == "Analysis 4"){
+				System.out.println("This is the fourth analysis");
+			}
 		}
 
 	}
