@@ -1,10 +1,21 @@
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -25,10 +36,11 @@ public class MyFrame extends JFrame implements ActionListener {
 	JTextArea outputArea;
 	ArrayList<String> countries = new ArrayList<String>();
 	ArrayList<Double> results = new ArrayList<Double>();
+	JLabel label;
 
 	MyFrame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(750, 500);
+		this.setSize(1100, 700);
 		this.setLayout(new BorderLayout());
 		this.setResizable(false);
 		this.setTitle("Covid-19 Tracker");
@@ -53,7 +65,11 @@ public class MyFrame extends JFrame implements ActionListener {
 		panel4.setPreferredSize(new Dimension(100, 100));
 		panel5.setPreferredSize(new Dimension(100, 100));
 
-		JLabel label = new JLabel(new ImageIcon("Resources/map.jpg"));
+		ImageIcon imageIcon = new ImageIcon("Resources/map.jpg");
+		Image image = imageIcon.getImage(); // transform it
+		Image newimg = image.getScaledInstance(900, 500, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+		imageIcon = new ImageIcon(newimg); // transform it back
+		label = new JLabel(imageIcon);
 		label.setLayout(new BorderLayout());
 		JLabel addCountry = new JLabel("Add a Country");
 		JLabel removeCountry = new JLabel("Remove a Country");
@@ -73,7 +89,8 @@ public class MyFrame extends JFrame implements ActionListener {
 		calculateButton = new JButton("Calculate");
 		calculateButton.addActionListener(this);
 
-		String[] analysisTypes = { "Total Confirmed Cases per Country", "Total Confirmed Cases per Capita", "Total Deaths per Country", "Total Deaths per Capita" };
+		String[] analysisTypes = { "Total Confirmed Cases per Country", "Total Confirmed Cases per Capita",
+				"Total Deaths per Country", "Total Deaths per Capita" };
 		analysisBox = new JComboBox(analysisTypes);
 
 		countryList = new JTextArea(6, 15);
@@ -130,34 +147,84 @@ public class MyFrame extends JFrame implements ActionListener {
 			removeCountryText.setText("");
 		}
 
-		if (e.getSource() == calculateButton){
-			/*STRATEGY DESIGN PATTERN - create an context variable to
-			 see change in behaviour when it changes its analysis*/
+		if (e.getSource() == calculateButton) {
+			/*
+			 * STRATEGY DESIGN PATTERN - create an context variable to see change in
+			 * behaviour when it changes its analysis
+			 */
 			Context context;
-			if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Country"){
+			if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Country") {
 				System.out.println("Calculating confirmed cases for list of countries.");
 				context = new Context((new TotalCasesPerCountry()));
-			}
-			else if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Capita"){
+			} else if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Capita") {
 				System.out.println("Calculating total confirmed cases per capita.");
 				context = new Context((new TotalCasesPerCapita()));
-			}
-			else if (analysisBox.getSelectedItem() == "Total Deaths per Country"){
+			} else if (analysisBox.getSelectedItem() == "Total Deaths per Country") {
 				System.out.println("Calculating total deaths for list of countries.");
 				context = new Context((new TotalDeathsPerCountry()));
-			}
-			else /*(analysisBox.getSelectedItem() == "Total Deaths per Capita")*/{
+			} else /* (analysisBox.getSelectedItem() == "Total Deaths per Capita") */ {
 				System.out.println("Calculating total deaths per capita.");
 				context = new Context((new TotalDeathsPerCapita()));
 			}
 
 			results = context.executeAnalysis(countries);
 			outputArea.setText("");
+			Double maxValue = Collections.max(results);
+
 			for (int i = 0; i < countries.size(); i++) {
 				outputArea.append(countries.get(i) + ":" + results.get(i) + "\n");
+				System.out.println("results " + results);
 			}
+
+			BufferedImage myPicture = null;
+			try {
+				myPicture = ImageIO.read(new File("Resources/map.jpg"));
+			} catch (IOException event) {
+				// TODO Auto-generated catch block
+				event.printStackTrace();
+			}
+			int mapWidth = myPicture.getWidth();
+			int mapHeight = myPicture.getHeight();
+
+			int maxOvalDimension;
+			if (maxValue < 10000)
+				maxOvalDimension = 20;
+			else if (maxValue < 50000)
+				maxOvalDimension = 30;
+			else if (maxValue < 100000)
+				maxOvalDimension = 50;
+			else
+				maxOvalDimension = 70;
+			int minOvalDimension = 15;
+
+			int ovalDimension = (int) Math.round(((maxOvalDimension - minOvalDimension) * 1) + minOvalDimension);
+
+			Point2D coords = new Point2D.Double(-102.552784, 23.634501);
+			// longitude and latitude values are of type double as given
+			// from the csv coordinates file
+
+			System.out.println("Coordinates: " + coords.getX() + ", " + coords.getY());
+			Point testPoint = getXY(coords.getY(), coords.getX(), mapWidth, mapHeight);
+			// Add the circle to the image
+			Graphics2D editableImage = (Graphics2D) myPicture.getGraphics();
+			editableImage.setColor(Color.RED);
+			editableImage.setStroke(new BasicStroke(3));
+			editableImage.fillOval(testPoint.x - (ovalDimension / 2), testPoint.y - (ovalDimension / 2), ovalDimension,
+					ovalDimension);
+			ImageIcon imageIcon = new ImageIcon();
+			imageIcon.setImage(myPicture);
+			Image image = imageIcon.getImage(); // transform it
+			Image newimg = image.getScaledInstance(900, 500, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+			imageIcon = new ImageIcon(newimg); // transform it back
+			label.setIcon(imageIcon);
 		}
 
+	}
+
+	private Point getXY(double lat, double lng, int mapWidth, int mapHeight) {
+		int screenX = (int) Math.round((((lng + 180) / 360) * mapWidth));
+		int screenY = (int) Math.round(((((lat * -1) + 90) / 180) * mapHeight));
+		return new Point(screenX, screenY);
 	}
 
 }
