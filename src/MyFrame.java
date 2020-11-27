@@ -5,7 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -74,7 +73,7 @@ public class MyFrame extends JFrame implements ActionListener {
 		calculateButton = new JButton("Calculate");
 		calculateButton.addActionListener(this);
 
-		String[] analysisTypes = { "Total Confirmed Cases per Country", "Analysis 2", "Total Deaths per Country", "Analysis 4" };
+		String[] analysisTypes = { "Total Confirmed Cases per Country", "Total Confirmed Cases per Capita", "Total Deaths per Country", "Total Deaths per Capita" };
 		analysisBox = new JComboBox(analysisTypes);
 
 		countryList = new JTextArea(6, 15);
@@ -101,7 +100,6 @@ public class MyFrame extends JFrame implements ActionListener {
 		panel4.add(analysisBox);
 
 		this.setVisible(true);
-
 	}
 
 	@Override
@@ -133,29 +131,30 @@ public class MyFrame extends JFrame implements ActionListener {
 		}
 
 		if (e.getSource() == calculateButton){
+			/*STRATEGY DESIGN PATTERN - create an context variable to
+			 see change in behaviour when it changes its analysis*/
+			Context context;
 			if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Country"){
 				System.out.println("Calculating confirmed cases for list of countries.");
-				Analysis selectedAnalysis = new Analysis("Total Confirmed Cases per Country", countries);
-				results = selectedAnalysis.getAnalysisData();
-				outputArea.setText("");
-				for (int i = 0; i < countries.size(); i++) {
-					outputArea.append(countries.get(i) + ":" + results.get(i) + "\n");
-				}
+				context = new Context((new TotalCasesPerCountry()));
 			}
-			else if (analysisBox.getSelectedItem() == "Analysis 2"){
-				System.out.println("This is the second analysis");
+			else if (analysisBox.getSelectedItem() == "Total Confirmed Cases per Capita"){
+				System.out.println("Calculating total confirmed cases per capita.");
+				context = new Context((new TotalCasesPerCapita()));
 			}
 			else if (analysisBox.getSelectedItem() == "Total Deaths per Country"){
 				System.out.println("Calculating total deaths for list of countries.");
-				Analysis selectedAnalysis = new Analysis("Total Deaths per Country", countries);
-				results = selectedAnalysis.getAnalysisData();
-				outputArea.setText("");
-				for (int i = 0; i < countries.size(); i++) {
-					outputArea.append(countries.get(i) + ":" + results.get(i) + "\n");
-				}
+				context = new Context((new TotalDeathsPerCountry()));
 			}
-			else if (analysisBox.getSelectedItem() == "Analysis 4"){
-				System.out.println("This is the fourth analysis");
+			else /*(analysisBox.getSelectedItem() == "Total Deaths per Capita")*/{
+				System.out.println("Calculating total deaths per capita.");
+				context = new Context((new TotalDeathsPerCapita()));
+			}
+
+			results = context.executeAnalysis(countries);
+			outputArea.setText("");
+			for (int i = 0; i < countries.size(); i++) {
+				outputArea.append(countries.get(i) + ":" + results.get(i) + "\n");
 			}
 		}
 
