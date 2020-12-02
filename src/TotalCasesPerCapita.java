@@ -1,13 +1,22 @@
+/**
+ * TotalCasesPerCapita Class is a concrete class of Analysis
+ * using Strategy Design Pattern
+ * @author Venus Muongsouvanh
+ */
+
 import java.util.ArrayList;
 
-//STRATEGY DESIGN PATTERN
 public class TotalCasesPerCapita extends Analysis{
 
     TotalCasesPerCapita(){}
 
+    /**
+     * getAnalysisData will get the confirmed cases data and country population
+     * in order to calculate total cases per capita for selected countries
+     * @return ArrayList<Double>
+     */
     @Override
     public ArrayList<Double> getAnalysisData(){
-        //USING FACADE TO RETRIEVE DATA
         RetrieveData confirmedCases = new RetrieveData();
         RetrieveData countryPopulation = new RetrieveData();
         double num, denom, result;

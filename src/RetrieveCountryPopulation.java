@@ -1,15 +1,25 @@
+/**
+ * RetrieveCountryPopulation Class using Facade Design Pattern
+ * concrete class of Data
+ * @author Venus Muongsouvanh
+ */
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-//FACADE DESIGN PATTERN
 public class RetrieveCountryPopulation extends Data{
     private BufferedReader reader;
     private double population = 0;
 
     RetrieveCountryPopulation(){}
 
+    /**
+     * getData() will retrieve the selected country population from json file
+     * @param country
+     * @return double
+     */
     public double getData(String country){
         try {
             reader = new BufferedReader(new FileReader("Resources/country-by-population.json"));
@@ -18,12 +28,10 @@ public class RetrieveCountryPopulation extends Data{
             e.printStackTrace();
         }
         String line;
-        String countryString = "";
         String populationString = "";
         try {
             while ((line = reader.readLine()) != null) {
                 if (line.contains(country)) {
-                    countryString = line;
                     line = reader.readLine();
                     populationString = line;
                     break;

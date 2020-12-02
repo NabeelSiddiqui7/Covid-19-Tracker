@@ -1,23 +1,18 @@
-import java.awt.BasicStroke;
+/**
+ * MyFrame Class is the layout to the user interface
+ * and responds when user clicks on buttons
+ * @author Nabeel Siddiqui
+ */
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -29,23 +24,23 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class MyFrame extends JFrame implements ActionListener {
-	JButton addButton;
-	JButton removeButton;
-	JButton calculateButton;
-	JComboBox analysisBox;
-	JTextField addCountryText;
-	JTextField removeCountryText;
-	JTextArea countryList;
-	JTextArea outputArea;
-	ArrayList<String> countries = new ArrayList<String>();
-	ArrayList<Double> results = new ArrayList<Double>();
-	JLabel label;
-	String csvFile = "Resources/coordinates.csv";
-	BufferedReader br = null;
-	String line = "";
-	String cvsSplitBy = ",";
+	private JButton addButton;
+	private JButton removeButton;
+	private JButton calculateButton;
+	private JComboBox analysisBox;
+	private JTextField addCountryText;
+	private JTextField removeCountryText;
+	private JTextArea countryList;
+	private JTextArea outputArea;
+	private ArrayList<String> countries = new ArrayList<String>();
+	private ArrayList<Double> results = new ArrayList<Double>();
+	private JLabel label;
+	private String csvFile = "Resources/coordinates.csv";
+	private BufferedReader br = null;
+	private String line = "";
+	private String cvsSplitBy = ",";
 
-	MyFrame() {
+	MyFrame() { //constructor to set up UI
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(1100, 700);
 		this.setLayout(new BorderLayout());
@@ -129,100 +124,23 @@ public class MyFrame extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//IF USER CLICKS TO ADD A COUNTRY
 		if (e.getSource() == addButton) {
-
-			try {
-
-				br = new BufferedReader(new FileReader(csvFile));
-				boolean found = false;
-				while ((line = br.readLine()) != null) {
-
-					// use comma as separator
-					String[] country = line.split(cvsSplitBy);
-
-					if (country[3].equals(addCountryText.getText())) {
-						found = true;
-						countryList.setText("");
-						System.out.println("Added " + addCountryText.getText());
-						countries.add(addCountryText.getText());
-						for (int i = 0; i < countries.size(); i++) {
-							countryList.append(countries.get(i) + "\n");
-						}
-						for (int i = 0; i < countries.size(); i++) {
-							System.out.println(countries.get(i));
-						}
-					}
-				}
-				if (!found) {
-					JOptionPane.showMessageDialog(null, "Please enter a valid country");
-				}
-
-			} catch (FileNotFoundException ex) {
-				ex.printStackTrace();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-				}
+			AddCountry addCountry = new AddCountry(line,addCountryText,countryList,countries,cvsSplitBy,csvFile);
+			if (!addCountry.CheckAddCountry()){
+				JOptionPane.showMessageDialog(null, "Please enter a valid country");
 			}
 
 			addCountryText.setText("");
 		}
 
-		if (e.getSource() == removeButton)
-
-		{
-			try {
-
-				br = new BufferedReader(new FileReader(csvFile));
-				boolean found = false;
-				while ((line = br.readLine()) != null) {
-
-					// use comma as separator
-					String[] country = line.split(cvsSplitBy);
-
-					if (country[3].equals(removeCountryText.getText())) {
-						found = true;
-						if (countries.contains(removeCountryText.getText())) {
-							System.out.println("Removed " + removeCountryText.getText());
-							countries.remove(removeCountryText.getText());
-
-						} else {
-							JOptionPane.showMessageDialog(null, "Please enter a country that has been selected");
-						}
-					}
-				}
-				if (!found) {
-					JOptionPane.showMessageDialog(null, "Please enter a valid country");
-				}
-
-			} catch (FileNotFoundException ex) {
-				ex.printStackTrace();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-				}
+		//IF USER CLICKS TO REMOVE A COUNTRY
+		if (e.getSource() == removeButton) {
+			RemoveCountry removeCountry = new RemoveCountry(line,removeCountryText,countryList,countries,cvsSplitBy,csvFile);
+			if (!removeCountry.CheckRemoveCountry()){
+				JOptionPane.showMessageDialog(null, "Please enter a valid country");
 			}
-
-			countryList.setText("");
-			for (int i = 0; i < countries.size(); i++) {
-				countryList.append(countries.get(i) + "\n");
-			}
-			for (int i = 0; i < countries.size(); i++) {
-				System.out.println(countries.get(i));
-			}
-
+			removeCountry.UpdateCountryList();
 			removeCountryText.setText("");
 		}
 
@@ -254,100 +172,12 @@ public class MyFrame extends JFrame implements ActionListener {
 				System.out.println("results " + results);
 			}
 
-			// --------PAINTING-------------------------------------------------//
-
-			BufferedImage myPicture = null;
-			try {
-				myPicture = ImageIO.read(new File("Resources/map.jpg"));
-			} catch (IOException event) {
-				// TODO Auto-generated catch block
-				event.printStackTrace();
-			}
-			int mapWidth = myPicture.getWidth();
-			int mapHeight = myPicture.getHeight();
-
-			for (int i = 0; i < countries.size(); i++) {
-
-				Graphics2D editableImage = (Graphics2D) myPicture.getGraphics();
-
-				Double maxValue = results.get(i);
-				System.out.println("max value: " + maxValue);
-				int maxOvalDimension;
-				if (maxValue < 10000) {
-					editableImage.setColor(Color.GREEN);
-					maxOvalDimension = 20;
-				} else if (maxValue < 50000) {
-					editableImage.setColor(Color.YELLOW);
-					maxOvalDimension = 30;
-				} else if (maxValue < 100000) {
-					editableImage.setColor(Color.ORANGE);
-					maxOvalDimension = 50;
-				} else {
-					editableImage.setColor(Color.RED);
-					maxOvalDimension = 70;
-				}
-				int minOvalDimension = 15;
-				int ovalDimension = (int) Math.round(((maxOvalDimension - minOvalDimension) * 1) + minOvalDimension);
-
-				try {
-
-					br = new BufferedReader(new FileReader(csvFile));
-					boolean found = false;
-					while ((line = br.readLine()) != null) {
-
-						// use comma as separator
-						String[] country = line.split(cvsSplitBy);
-
-						if (country[3].equals(countries.get(i))) {
-							found = true;
-							double lat = Double.parseDouble(country[1]);
-							double lng = Double.parseDouble(country[2]);
-							Point2D coords = new Point2D.Double(lng, lat);
-							// longitude and latitude values are of type double as given
-							// from the csv coordinates file
-
-							System.out.println("Coordinates: " + coords.getX() + ", " + coords.getY());
-							Point testPoint = getXY(coords.getY(), coords.getX(), mapWidth, mapHeight);
-							// Add the circle to the image
-							editableImage.setStroke(new BasicStroke(3));
-							editableImage.fillOval(testPoint.x - (ovalDimension / 2), testPoint.y - (ovalDimension / 2),
-									ovalDimension, ovalDimension);
-						}
-					}
-					if (!found) {
-						JOptionPane.showMessageDialog(null, "Please enter a valid country");
-					}
-
-				} catch (FileNotFoundException ex) {
-					ex.printStackTrace();
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				} finally {
-					if (br != null) {
-						try {
-							br.close();
-						} catch (IOException ex) {
-							ex.printStackTrace();
-						}
-					}
-				}
-
-			}
-
+			// --------DISPLAY RESULTS ON MAP-------------------------------------------------//
+			DisplayResult displayResult = new DisplayResult(results, countries, line, cvsSplitBy, csvFile);
 			ImageIcon imageIcon = new ImageIcon();
-			imageIcon.setImage(myPicture);
-			Image image = imageIcon.getImage(); // transform it
-			Image newimg = image.getScaledInstance(900, 500, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-			imageIcon = new ImageIcon(newimg); // transform it back
+			imageIcon = displayResult.MapResult();
 			label.setIcon(imageIcon);
+
 		}
-
 	}
-
-	private Point getXY(double lat, double lng, int mapWidth, int mapHeight) {
-		int screenX = (int) Math.round((((lng + 180) / 360) * mapWidth));
-		int screenY = (int) Math.round(((((lat * -1) + 90) / 180) * mapHeight));
-		return new Point(screenX, screenY);
-	}
-
 }

@@ -1,15 +1,27 @@
+/**
+ * Analysis Class - USED STRATEGY DESIGN PATTERN
+ * @author Venus Muongsouvanh
+ */
+
 import java.util.ArrayList;
 
-//STRATEGY DESIGN PATTERN - BASE CLASS
 abstract class Analysis {
     protected ArrayList<String> countries = new ArrayList<String>();
     protected ArrayList<Double> resultData = new ArrayList<Double>();
 
     Analysis(){}
 
+    /**
+     *setCountries() is a setter for countries
+     * @param countries
+     */
     public void setCountries(ArrayList<String> countries ){
         this.countries = countries;
     }
 
+    /**
+     * getAnalysisData() is used to retrieve all data for selected analysis
+     * @return ArrayList<Double>
+     */
     public abstract ArrayList<Double> getAnalysisData();
 }

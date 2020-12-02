@@ -1,13 +1,27 @@
+/**
+ * Context Class for Strategy Design Pattern to be used for analysis
+ * @author Venus Muongsouvanh
+ */
+
 import java.util.ArrayList;
 
-//STRATEGY PATTERN - CONTEXT CLASS
 public class Context {
     private Analysis analysis;
 
-    public Context (Analysis analysis){
+    /**
+     * Context constructor - sets analysis
+     * @param analysis
+     */
+    Context (Analysis analysis){
         this.analysis = analysis;
     }
 
+    /**
+     * executeAnalysis will perform the analysis for selected countries
+     * and selected analysis
+     * @param countries
+     * @return ArrayList<Double>
+     */
     public ArrayList<Double> executeAnalysis(ArrayList<String> countries){
         ArrayList<Double> results;
         analysis.setCountries(countries);

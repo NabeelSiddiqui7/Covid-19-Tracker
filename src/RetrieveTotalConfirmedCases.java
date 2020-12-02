@@ -1,3 +1,8 @@
+/**
+ * RetrieveTotalConfirmedCases Class using Facade Design Pattern
+ * concrete class of Data
+ * @author Venus Muongsouvanh
+ */
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -5,12 +10,16 @@ import java.util.Scanner;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
-//FACADE DESIGN PATTERN
 public class RetrieveTotalConfirmedCases extends Data{
     private double cases = 0;
 
     RetrieveTotalConfirmedCases(){}
-
+    /**
+     * getData() will retrieve the selected country's total confirmed cases
+     * from API
+     * @param country
+     * @return double
+     */
     public double getData(String country) {
         String urlString = String.format("https://api.covid19api.com/total/dayone/country/%s/status/confirmed", country);
         try {
