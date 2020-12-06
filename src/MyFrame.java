@@ -1,3 +1,4 @@
+
 /**
  * MyFrame Class is the layout to the user interface
  * and responds when user clicks on buttons
@@ -13,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,7 +42,7 @@ public class MyFrame extends JFrame implements ActionListener {
 	private String line = "";
 	private String cvsSplitBy = ",";
 
-	MyFrame() { //constructor to set up UI
+	MyFrame() { // constructor to set up UI
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(1100, 700);
 		this.setLayout(new BorderLayout());
@@ -122,22 +124,28 @@ public class MyFrame extends JFrame implements ActionListener {
 		this.setVisible(true);
 	}
 
-	@Override
+	/**
+	 * actionPerformed() allows user to add a country to the list, remove a country,
+	 * and perform analysis on them
+	 * 
+	 * @param e
+	 */
 	public void actionPerformed(ActionEvent e) {
-		//IF USER CLICKS TO ADD A COUNTRY
+		// IF USER CLICKS TO ADD A COUNTRY
 		if (e.getSource() == addButton) {
-			AddCountry addCountry = new AddCountry(line,addCountryText,countryList,countries,cvsSplitBy,csvFile);
-			if (!addCountry.CheckAddCountry()){
+			AddCountry addCountry = new AddCountry(line, addCountryText, countryList, countries, cvsSplitBy, csvFile);
+			if (!addCountry.CheckAddCountry()) {
 				JOptionPane.showMessageDialog(null, "Please enter a valid country");
 			}
 
 			addCountryText.setText("");
 		}
 
-		//IF USER CLICKS TO REMOVE A COUNTRY
+		// IF USER CLICKS TO REMOVE A COUNTRY
 		if (e.getSource() == removeButton) {
-			RemoveCountry removeCountry = new RemoveCountry(line,removeCountryText,countryList,countries,cvsSplitBy,csvFile);
-			if (!removeCountry.CheckRemoveCountry()){
+			RemoveCountry removeCountry = new RemoveCountry(line, removeCountryText, countryList, countries, cvsSplitBy,
+					csvFile);
+			if (!removeCountry.CheckRemoveCountry()) {
 				JOptionPane.showMessageDialog(null, "Please enter a valid country");
 			}
 			removeCountry.UpdateCountryList();
@@ -172,7 +180,8 @@ public class MyFrame extends JFrame implements ActionListener {
 				System.out.println("results " + results);
 			}
 
-			// --------DISPLAY RESULTS ON MAP-------------------------------------------------//
+			// --------DISPLAY RESULTS ON
+			// MAP-------------------------------------------------//
 			DisplayResult displayResult = new DisplayResult(results, countries, line, cvsSplitBy, csvFile);
 			ImageIcon imageIcon = new ImageIcon();
 			imageIcon = displayResult.MapResult();
